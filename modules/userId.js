@@ -123,6 +123,42 @@ export const pubCommonIdSubmodule = {
   }
 };
 
+// @type {Submodule}
+export const britepoolIdSubmodule = {
+  name: 'britepoolId',
+  decode(value) {
+    return {
+      'britepoolid': value['pbid']
+    }
+  },
+  getId(submoduleConfigParams, consentData) {
+    let params = Object.assign({}, submoduleConfigParams);
+    if (typeof params.api_key !== 'string' && Object.keys(params).length < 2) {
+      utils.logError(`${MODULE_NAME} - britepoolId submodule requires api_key and at least one identifier to be defined`);
+      return;
+    }
+    // Add x-api-key into the header
+    const headers = {
+      'x-api-key': params.api_key
+    };
+    delete params.api_key;
+    const url = submoduleConfigParams.url || 'https://api.britepool.com/v1/brite/id';
+    return function (callback) {
+      ajax(url, response => {
+        let responseObj;
+        if (response) {
+          try {
+            responseObj = JSON.parse(response);
+          } catch (error) {
+            utils.logError(error);
+          }
+        }
+        callback(responseObj);
+      }, JSON.stringify(params), { customHeaders: headers, contentType: 'application/json', method: 'POST' });
+    }
+  }
+};
+
 /**
  * @param {SubmoduleStorage} storage
  * @param {string} value
@@ -426,4 +462,4 @@ export function init (config, enabledSubmodules) {
   });
 }
 
-init(config, [pubCommonIdSubmodule, unifiedIdSubmodule]);
+init(config, [pubCommonIdSubmodule, unifiedIdSubmodule, britepoolIdSubmodule]);
