@@ -9,10 +9,10 @@ import {
 } from 'modules/userId';
 import {config} from 'src/config';
 import * as utils from 'src/utils';
+import * as ajaxLib from 'src/ajax';
 import * as auctionModule from 'src/auction';
 import {getAdUnits} from 'test/fixtures/fixtures';
 import {registerBidder} from 'src/adapters/bidderFactory';
-import {spec} from 'modules/orbidderBidAdapter';
 
 let assert = require('chai').assert;
 let expect = require('chai').expect;
@@ -458,60 +458,51 @@ describe('User ID', function() {
 
   describe('BritePool API call', () => {
     let ajaxStub;
-    let adUnits;
     before(function () {
-      adUnits = [{
-        code: 'adUnit-code',
-        mediaTypes: {
-          banner: {},
-          native: {},
-        },
-        sizes: [[300, 200], [300, 600]],
-        bids: [
-          {bidder: 'sampleBidder', params: {placementId: 'banner-only-bidder'}}
-        ]
-      }];
-      let sampleSpec = {
-        code: 'sampleBidder',
-        isBidRequestValid: () => {},
-        buildRequest: (reqs) => {},
-        interpretResponse: () => {},
-        getUserSyncs: () => {}
-      };
-      const adUnitCodes = ['adUnit-code'];
-      let auction = auctionModule.newAuction({adUnits, adUnitCodes, callback: function() {}, cbTimeout: 1999});
-      const createAuctionStub = sinon.stub(auctionModule, 'newAuction');
-      createAuctionStub.returns(auction);
-
-      init(config, [pubCommonIdSubmodule, unifiedIdSubmodule, britepoolIdSubmodule]);
-
-      registerBidder(sampleSpec);
+      console.log('***** before');
+      ajaxStub = sinon.stub(ajaxLib, 'ajaxBuilder').callsFake(function() {
+        return function(url, callback) {
+          console.log('**** ajaxBuilder mock called');
+          const fakeResponse = sinon.stub();
+          fakeResponse.returns('headerContent');
+          callback.success(JSON.stringify({ pbid: '17508f16-31a5-4ca6-8ec2-8cda6f45e07c' }), { getResponseHeader: fakeResponse });
+        };
+      });
     });
 
-    beforeEach(() => {
-      ajaxStub = sinon.stub(spec, 'ajaxCall');
-    });
-
-    afterEach(() => {
+    after(() => {
+      console.log('***** after');
       ajaxStub.restore();
     });
 
+    beforeEach(() => {
+      console.log('***** beforeEach');
+    });
+
+    afterEach(() => {
+      console.log('***** afterEach');
+    });
+
     it('sends x-api-key', () => {
-      config.setConfig({
-        usersync: {
-          syncDelay: 0,
-          userIds: [
-            createStorageConfig('pubCommonId', 'pubcid', 'cookie'),
-            createStorageConfig('unifiedId', 'unifiedid', 'cookie'),
-            createStorageConfig('britepoolId', 'britepoolid', 'cookie')
-          ]}
+      console.log('***** it');
+      return new Promise((resolve, reject) => {
+        const getId = britepoolIdSubmodule.getId({
+          'api-key': '1111',
+          'aaid': '4421ea96-34a9-45df-a4ea-3c41a48a18b1'
+        });
+        if (typeof (getId) === 'function') {
+          getId(response => {
+            console.log('***** response');
+            console.log(response);
+            expect(ajaxStub.calledOnce).to.equal(true);
+            expect(ajaxStub.firstCall.args[0].indexOf('https://')).to.equal(0);
+            expect(ajaxStub.firstCall.args[1]).to.equal(JSON.stringify(winObj));
+            resolve();
+          });
+        } else {
+          reject(new Error('getId did not return a function'));
+        }
       });
-
-      $$PREBID_GLOBAL$$.requestBids({adUnits});
-
-      expect(ajaxStub.calledOnce).to.equal(true);
-      expect(ajaxStub.firstCall.args[0].indexOf('https://')).to.equal(0);
-      expect(ajaxStub.firstCall.args[1]).to.equal(JSON.stringify(winObj));
     });
   });
 });

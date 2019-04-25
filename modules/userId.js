@@ -143,7 +143,7 @@ export const britepoolIdSubmodule = {
     };
     delete params.api_key;
     const url = submoduleConfigParams.url || 'https://api.britepool.com/v1/brite/id';
-    return function (callback) {
+    return function(callback) {
       ajax(url, response => {
         let responseObj;
         if (response) {
