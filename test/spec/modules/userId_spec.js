@@ -456,53 +456,19 @@ describe('User ID', function() {
     });
   });
 
-  describe('BritePool API call', () => {
-    let ajaxStub;
-    before(function () {
-      console.log('***** before');
-      ajaxStub = sinon.stub(ajaxLib, 'ajaxBuilder').callsFake(function() {
-        return function(url, callback) {
-          console.log('**** ajaxBuilder mock called');
-          const fakeResponse = sinon.stub();
-          fakeResponse.returns('headerContent');
-          callback.success(JSON.stringify({ pbid: '17508f16-31a5-4ca6-8ec2-8cda6f45e07c' }), { getResponseHeader: fakeResponse });
-        };
-      });
-    });
-
-    after(() => {
-      console.log('***** after');
-      ajaxStub.restore();
-    });
-
-    beforeEach(() => {
-      console.log('***** beforeEach');
-    });
-
-    afterEach(() => {
-      console.log('***** afterEach');
-    });
+  describe('BritePool Submodule', () => {
+    const api_key = '1111';
 
     it('sends x-api-key', () => {
-      console.log('***** it');
-      return new Promise((resolve, reject) => {
-        const getId = britepoolIdSubmodule.getId({
-          'api-key': '1111',
-          'aaid': '4421ea96-34a9-45df-a4ea-3c41a48a18b1'
-        });
-        if (typeof (getId) === 'function') {
-          getId(response => {
-            console.log('***** response');
-            console.log(response);
-            expect(ajaxStub.calledOnce).to.equal(true);
-            expect(ajaxStub.firstCall.args[0].indexOf('https://')).to.equal(0);
-            expect(ajaxStub.firstCall.args[1]).to.equal(JSON.stringify(winObj));
-            resolve();
-          });
-        } else {
-          reject(new Error('getId did not return a function'));
-        }
-      });
+      const configParams = {
+        api_key,
+        'aaid': '4421ea96-34a9-45df-a4ea-3c41a48a18b1'
+      };
+      const { params, headers, url, errors } = britepoolIdSubmodule.createParams(configParams);
+      delete configParams.api_key;
+      expect(url.indexOf('https://')).to.equal(0);
+      expect(headers['x-api-key']).to.equal(api_key);
+      expect(params).to.eql(configParams);
     });
   });
 });

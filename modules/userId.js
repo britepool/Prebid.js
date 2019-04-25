@@ -132,17 +132,11 @@ export const britepoolIdSubmodule = {
     }
   },
   getId(submoduleConfigParams, consentData) {
-    let params = Object.assign({}, submoduleConfigParams);
-    if (typeof params.api_key !== 'string' && Object.keys(params).length < 2) {
-      utils.logError(`${MODULE_NAME} - britepoolId submodule requires api_key and at least one identifier to be defined`);
+    const { params, headers, url, errors } = this.createParams(submoduleConfigParams, consentData);
+    if (errors.length > 0) {
+      errors.forEach((i, error) => utils.logError(error));
       return;
     }
-    // Add x-api-key into the header
-    const headers = {
-      'x-api-key': params.api_key
-    };
-    delete params.api_key;
-    const url = submoduleConfigParams.url || 'https://api.britepool.com/v1/brite/id';
     return function(callback) {
       ajax(url, response => {
         let responseObj;
@@ -156,6 +150,27 @@ export const britepoolIdSubmodule = {
         callback(responseObj);
       }, JSON.stringify(params), { customHeaders: headers, contentType: 'application/json', method: 'POST' });
     }
+  },
+  createParams(submoduleConfigParams, consentData) {
+    let errors = [];
+    let params = Object.assign({}, submoduleConfigParams);
+    if (typeof params.api_key !== 'string' && Object.keys(params).length < 2) {
+      errors.push(`${MODULE_NAME} - britepoolId submodule requires api_key and at least one identifier to be defined`);
+      utils.logError(error);
+      return { errors };
+    }
+    // Add x-api-key into the header
+    const headers = {
+      'x-api-key': params.api_key
+    };
+    delete params.api_key;
+    const url = submoduleConfigParams.url || 'https://api.britepool.com/v1/brite/id';
+    return {
+      params,
+      headers,
+      url,
+      errors
+    };
   }
 };
 
