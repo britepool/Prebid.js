@@ -458,17 +458,33 @@ describe('User ID', function() {
 
   describe('BritePool Submodule', () => {
     const api_key = '1111';
+    const aaid = '4421ea96-34a9-45df-a4ea-3c41a48a18b1';
+    const idfa = '2d1c4fac-5507-4e28-991c-ca544e992dba';
+    const url_override = 'https://override';
 
-    it('sends x-api-key', () => {
-      const configParams = {
-        api_key,
-        'aaid': '4421ea96-34a9-45df-a4ea-3c41a48a18b1'
-      };
-      const { params, headers, url, errors } = britepoolIdSubmodule.createParams(configParams);
-      delete configParams.api_key;
-      expect(url.indexOf('https://')).to.equal(0);
+    it('sends x-api-key in header and one identifier', () => {
+      const { params, headers, url, errors } = britepoolIdSubmodule.createParams({ api_key, aaid });
+      assert(errors.length === 0, errors);
       expect(headers['x-api-key']).to.equal(api_key);
-      expect(params).to.eql(configParams);
+      expect(params).to.eql({ aaid });
+    });
+
+    it('sends x-api-key in header and two identifiers', () => {
+      const { params, headers, url, errors } = britepoolIdSubmodule.createParams({ api_key, aaid, idfa });
+      assert(errors.length === 0, errors);
+      expect(headers['x-api-key']).to.equal(api_key);
+      expect(params).to.eql({ aaid, idfa });
+    });
+
+    it('fails without api_key', () => {
+      const { params, headers, url, errors } = britepoolIdSubmodule.createParams({ aaid, idfa });
+      expect(errors.length).to.equal(1);
+    });
+
+    it('test url override', () => {
+      const { params, headers, url, errors } = britepoolIdSubmodule.createParams({ api_key, aaid, url: url_override });
+      expect(url).to.equal(url_override);
+      expect(params.url).to.be.undefined;
     });
   });
 });

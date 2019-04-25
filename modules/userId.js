@@ -154,17 +154,17 @@ export const britepoolIdSubmodule = {
   createParams(submoduleConfigParams, consentData) {
     let errors = [];
     let params = Object.assign({}, submoduleConfigParams);
-    if (typeof params.api_key !== 'string' && Object.keys(params).length < 2) {
+    if (typeof params.api_key !== 'string' || Object.keys(params).length < 2) {
       errors.push(`${MODULE_NAME} - britepoolId submodule requires api_key and at least one identifier to be defined`);
-      utils.logError(error);
       return { errors };
     }
     // Add x-api-key into the header
     const headers = {
       'x-api-key': params.api_key
     };
+    const url = params.url || 'https://api.britepool.com/v1/brite/id';
     delete params.api_key;
-    const url = submoduleConfigParams.url || 'https://api.britepool.com/v1/brite/id';
+    delete params.url;
     return {
       params,
       headers,
