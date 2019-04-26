@@ -88,7 +88,7 @@ pbjs.setConfig({
         }, {
             name: "britepoolId",
             value: {
-              "pbid": "1234567890"
+              "britepoolid": "1234567890"
             }
         }],
         syncDelay: 5000
