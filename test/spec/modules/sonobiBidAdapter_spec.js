@@ -339,6 +339,17 @@ describe('SonobiBidAdapter', function () {
       expect(bidRequests.data.hfa).to.equal('hfakey')
     })
 
+    it('should return a properly formatted request with userid as a JSON-encoded set of User ID results', function () {
+      bidRequest[0].userId = {'pubcid': 'abcd-efg-0101', 'tdid': 'td-abcd-efg-0101'};
+      bidRequest[1].userId = {'pubcid': 'abcd-efg-0101', 'tdid': 'td-abcd-efg-0101'};
+      const bidRequests = spec.buildRequests(bidRequest, bidderRequests);
+      expect(bidRequests.url).to.equal('https://apex.go.sonobi.com/trinity.json');
+      expect(bidRequests.method).to.equal('GET');
+      expect(bidRequests.data.ref).not.to.be.empty;
+      expect(bidRequests.data.s).not.to.be.empty;
+      expect(JSON.parse(bidRequests.data.userid)).to.eql({'pubcid': 'abcd-efg-0101', 'tdid': 'td-abcd-efg-0101'});
+    })
+
     it('should set ius as 0 if Sonobi cannot drop iframe pixels', function () {
       userSync.canBidderRegisterSync.returns(false);
       const bidRequests = spec.buildRequests(bidRequest, bidderRequests);

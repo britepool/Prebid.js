@@ -82,6 +82,11 @@ export const spec = {
       payload.tdid = validBidRequests[0].userId.tdid;
     }
 
+    // Store all User ID module results as a JSON-encoded userid key
+    if (deepAccess(validBidRequests[0], 'userId') && Object.keys(validBidRequests[0].userId).length > 0) {
+      payload.userid = JSON.stringify(validBidRequests[0].userId);
+    }
+
     if (validBidRequests[0].params.referrer) {
       payload.ref = validBidRequests[0].params.referrer;
     }
