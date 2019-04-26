@@ -128,26 +128,34 @@ export const britepoolIdSubmodule = {
   name: 'britepoolId',
   decode(value) {
     return {
-      'britepoolid': value['pbid']
+      'britepoolid': value['primaryPBID']
     }
   },
   getId(submoduleConfigParams, consentData) {
-    const { params, headers, url, errors } = this.createParams(submoduleConfigParams, consentData);
-    if (errors.length > 0) {
-      errors.forEach((i, error) => utils.logError(error));
-      return;
-    }
+    // Always use function because caller only checks for non-falsy value in callback
     return function(callback) {
-      ajax(url, response => {
-        let responseObj;
-        if (response) {
-          try {
-            responseObj = JSON.parse(response);
-          } catch (error) {
-            utils.logError(error);
+      const { params, headers, url, errors } = britepoolIdSubmodule.createParams(submoduleConfigParams, consentData);
+      if (errors.length > 0) {
+        errors.forEach(error => utils.logError(error));
+        callback();
+        return;
+      }
+      ajax(url, {
+        success: response => {
+          let responseObj;
+          if (response) {
+            try {
+              responseObj = JSON.parse(response);
+            } catch (error) {
+              utils.logError(error);
+            }
           }
+          callback(responseObj);
+        },
+        error: error => {
+          if (error !== '') utils.logError(error);
+          callback();
         }
-        callback(responseObj);
       }, JSON.stringify(params), { customHeaders: headers, contentType: 'application/json', method: 'POST' });
     }
   },
