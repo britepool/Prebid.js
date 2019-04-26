@@ -253,7 +253,7 @@ describe('User ID', function() {
             storage: { name: 'unifiedid', type: 'cookie' }
           }, {
             name: 'britepoolId',
-            value: { 'pbid': '279c0161-5152-487f-809e-05d7f7e653fd' }
+            value: { 'primaryPBID': '279c0161-5152-487f-809e-05d7f7e653fd' }
           }]
         }
       });
@@ -295,7 +295,7 @@ describe('User ID', function() {
         'TDID': `testunifiedid${storageResetCount}`
       }), (new Date(Date.now() + 5000).toUTCString()));
       utils.setCookie('britepoolid', JSON.stringify({
-        'pbid': `testbritepoolid${storageResetCount}`
+        'primaryPBID': `testbritepoolid${storageResetCount}`
       }), (new Date(Date.now() + 5000).toUTCString()));
 
       // simulate existing browser local storage values
@@ -304,7 +304,7 @@ describe('User ID', function() {
       }));
       localStorage.setItem('unifiedid_alt_exp', '');
       localStorage.setItem('britepoolid_alt', JSON.stringify({
-        'pbid': `testbritepoolid${storageResetCount}`
+        'primaryPBID': `testbritepoolid${storageResetCount}`
       }), (new Date(Date.now() + 5000).toUTCString()));
       localStorage.setItem('britepoolid_alt_exp', '');
 
