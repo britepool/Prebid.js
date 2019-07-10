@@ -170,7 +170,7 @@ export const britepoolIdSubmodule = {
     const headers = {
       'x-api-key': params.api_key
     };
-    const url = params.url || 'https://api.britepool.com/v1/brite/id';
+    const url = params.url || 'https://api.britepool.com/v1/britepool/id';
     delete params.api_key;
     delete params.url;
     return {
