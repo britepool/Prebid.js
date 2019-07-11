@@ -134,15 +134,16 @@ export const britepoolIdSubmodule = {
   getId(submoduleConfigParams, consentData) {
     // Always use function because caller only checks for non-falsy value in callback
     return function(callback) {
-      const { params, headers, url, errors } = britepoolIdSubmodule.createParams(submoduleConfigParams, consentData);
+      const { params, headers, url, getter, errors } = britepoolIdSubmodule.createParams(submoduleConfigParams, consentData);
       if (errors.length > 0) {
         errors.forEach(error => utils.logError(error));
         callback();
         return;
       }
-      ajax(url, {
-        success: response => {
-          let responseObj;
+      if (typeof getter === 'function') {
+        // Use caller provided getter function
+        getter(params).then(response => {
+          let responseObj = null;
           if (response) {
             try {
               responseObj = JSON.parse(response);
@@ -151,12 +152,29 @@ export const britepoolIdSubmodule = {
             }
           }
           callback(responseObj);
-        },
-        error: error => {
-          if (error !== '') utils.logError(error);
+        }).catch(error => {
+          utils.logError(error);
           callback();
-        }
-      }, JSON.stringify(params), { customHeaders: headers, contentType: 'application/json', method: 'POST' });
+        });
+      } else {
+        ajax(url, {
+          success: response => {
+            let responseObj = null;
+            if (response) {
+              try {
+                responseObj = JSON.parse(response);
+              } catch (error) {
+                utils.logError(error);
+              }
+            }
+            callback(responseObj);
+          },
+          error: error => {
+            if (error !== '') utils.logError(error);
+            callback();
+          }
+        }, JSON.stringify(params), { customHeaders: headers, contentType: 'application/json', method: 'POST' });
+      }
     }
   },
   createParams(submoduleConfigParams, consentData) {
@@ -171,12 +189,15 @@ export const britepoolIdSubmodule = {
       'x-api-key': params.api_key
     };
     const url = params.url || 'https://api.britepool.com/v1/britepool/id';
+    const getter = params.getter;
     delete params.api_key;
     delete params.url;
+    delete params.getter;
     return {
       params,
       headers,
       url,
+      getter,
       errors
     };
   }
