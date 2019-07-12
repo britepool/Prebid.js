@@ -179,15 +179,22 @@ export const britepoolIdSubmodule = {
   },
   createParams(submoduleConfigParams, consentData) {
     let errors = [];
+    const headers = {};
     let params = Object.assign({}, submoduleConfigParams);
-    if (typeof params.api_key !== 'string' || Object.keys(params).length < 2) {
-      errors.push(`${MODULE_NAME} - britepoolId submodule requires api_key and at least one identifier to be defined`);
-      return { errors };
+    if (params.getter) {
+      // Custom getter will not require other params
+      if (typeof params.getter !== 'function') {
+        errors.push(`${MODULE_NAME} - britepoolId submodule requires getter to be a function`);
+        return { errors };
+      }
+    } else {
+      if (typeof params.api_key !== 'string' || Object.keys(params).length < 2) {
+        errors.push(`${MODULE_NAME} - britepoolId submodule requires api_key and at least one identifier to be defined`);
+        return { errors };
+      }
+      // Add x-api-key into the header
+      headers['x-api-key'] = params.api_key;
     }
-    // Add x-api-key into the header
-    const headers = {
-      'x-api-key': params.api_key
-    };
     const url = params.url || 'https://api.britepool.com/v1/britepool/id';
     const getter = params.getter;
     delete params.api_key;
