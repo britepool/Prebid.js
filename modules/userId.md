@@ -22,16 +22,6 @@ pbjs.setConfig({
                 name: "_pubcid",
                 expires: 60
             }
-        }, {
-            name: "britepoolId",
-            params: {
-                api_key: "1111"
-            },
-            storage: {
-                type: "cookie",
-                name: "britepoolid",
-                expires: 60
-            }
         }],
         syncDelay: 5000
     }
@@ -60,16 +50,6 @@ pbjs.setConfig({
                 name: "pubcid",
                 expires: 60
             }
-        }, {
-            name: "britepoolId",
-            params: {
-                api_key: "1111"
-            },
-            storage: {
-                type: "html5",
-                name: "britepoolid",
-                expires: 60
-            }
         }],
         syncDelay: 5000
     }
@@ -84,11 +64,6 @@ pbjs.setConfig({
             name: "pubCommonId",
             value: {
               "providedPubCommonId": "1234567890"
-            }
-        }, {
-            name: "britepoolId",
-            value: {
-              "britepoolid": "1234567890"
             }
         }],
         syncDelay: 5000
