@@ -502,6 +502,6 @@ describe('User ID', function() {
         assert.deepEqual(result, { 'primaryPBID': pbid });
         done();
       });
-	  });
+    });
   });
 });
