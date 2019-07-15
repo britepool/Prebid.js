@@ -144,7 +144,9 @@ export const britepoolIdSubmodule = {
         // Use caller provided getter function
         getter(params).then(response => {
           let responseObj = null;
-          if (response) {
+          if (typeof response === 'object') {
+            responseObj = response;
+          } else if (typeof response === 'string') {
             try {
               responseObj = JSON.parse(response);
             } catch (error) {
